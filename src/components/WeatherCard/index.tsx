@@ -1,3 +1,4 @@
+import { Card, CardContent, Typography, Box, CircularProgress, Alert } from '@mui/material';
 import { WeatherInfo } from '../../services/weatherService';
 import { DictionaryItem } from '../../utils/dictionary';
 
@@ -10,35 +11,57 @@ interface Props {
 }
 
 export const WeatherCard = ({ loading, error, data, selectedCity, t }: Props) => {
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  if (!data) return null;
+
   return (
-    <div style={{ 
-      border: '1px solid #e0e0e0', padding: '30px', borderRadius: '8px', 
-      boxShadow: '0 4px 6px rgba(0,0,0,0.1)', backgroundColor: '#fff', textAlign: 'center'
-    }}>
-      <h2 style={{ margin: '0 0 10px 0' }}>{t.title}</h2>
-      <h3 style={{ color: '#555', margin: '0 0 20px 0', textTransform: 'capitalize' }}>{selectedCity}</h3>
-      
-      {loading && <p style={{ fontSize: '1.1em', color: '#666' }}>{t.loading}</p>}
-      {error && <p style={{ color: 'red', fontWeight: 'bold' }}>{t.error}</p>}
-      
-      {!loading && !error && data && (
-        <div>
-          <img 
-            src={`https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`} 
-            alt="weather icon" 
-            style={{ width: '100px', height: '100px' }}
-          />
-          <h4 style={{ textTransform: 'capitalize', fontSize: '1.4em', margin: '10px 0' }}>
-            {data.weather[0].description}
-          </h4>
-          <div style={{ fontSize: '1.2em', marginTop: '15px' }}>
-            <p style={{ margin: '8px 0' }}><b>{t.temp}:</b> {data.main.temp} °C</p>
-            <p style={{ margin: '8px 0', color: '#555' }}>
-              <b>{t.min}:</b> {data.main.temp_min} °C | <b>{t.max}:</b> {data.main.temp_max} °C
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
+    <Card elevation={2} sx={{ borderRadius: 2 }}>
+      <CardContent sx={{ textAlign: 'center' }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          {selectedCity.toUpperCase()}
+        </Typography>
+        
+        <Box 
+          component="img"
+          // Accedemos al icono dentro del array weather
+          src={`http://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png`}
+          alt="Weather Icon"
+          sx={{ width: 120, height: 120, margin: '0 auto' }}
+        />
+        
+        <Typography variant="h3" component="p" color="primary" fontWeight="bold">
+          {/* Accedemos a la temperatura dentro de main */}
+          {data.main.temp}°C
+        </Typography>
+        
+        <Typography variant="h6" color="text.secondary" sx={{ textTransform: 'capitalize', mt: 1 }}>
+          {/* Accedemos a la descripción dentro del array weather */}
+          {data.weather[0].description}
+        </Typography>
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 3 }}>
+          <Box>
+            {/* Si TypeScript te marca error en t.humidity, revisa que exista en tu dictionary.ts */}
+            <Typography variant="body2" color="text.secondary">{t.humidity || 'Humedad'}</Typography>
+            <Typography variant="body1" fontWeight="bold">{data.main.humidity}%</Typography>
+          </Box>
+          <Box>
+            <Typography variant="body2" color="text.secondary">{t.wind || 'Viento'}</Typography>
+            <Typography variant="body1" fontWeight="bold">{data.wind.speed} m/s</Typography>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };

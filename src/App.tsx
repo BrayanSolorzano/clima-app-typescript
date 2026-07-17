@@ -1,22 +1,22 @@
 import { useEffect, useState, FormEvent } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from './redux/store';
-import { getWeather, setLanguage, setCity } from './redux/weatherSlice';
-import { dict } from './utils/dictionary';
-
-// Importamos nuestros nuevos componentes
-import { LanguageSelector } from './components/LanguageSelector';
+import { useDispatch, useSelector } from 'react-redux';
+import { Container, Typography, Box, CssBaseline, Paper } from '@mui/material';
+import { AppDispatch, RootState } from './redux/store';
+import { getWeather } from './redux/weatherSlice';
 import { SearchBar } from './components/SearchBar';
-import { DefaultCities } from './components/DefaultCities';
 import { WeatherCard } from './components/WeatherCard';
+import { LanguageSelector } from './components/LanguageSelector';
+import { dictionary } from './utils/dictionary';
 
 function App() {
+  const [inputValue, setInputValue] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  const { data, loading, error, lang, selectedCity } = useSelector((state: RootState) => state.weather);
   
-  const [inputValue, setInputValue] = useState<string>(selectedCity);
-  const t = dict[lang];
-  const defaultCities = ['London', 'Toronto', 'Singapore'];
+  const { data, loading, error, lang, selectedCity } = useSelector(
+    (state: RootState) => state.weather
+  );
+
+  const t = dictionary[lang as keyof typeof dictionary];
 
   useEffect(() => {
     dispatch(getWeather({ city: selectedCity, lang }));
@@ -24,47 +24,46 @@ function App() {
 
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim() !== '') {
-      dispatch(setCity(inputValue.trim()));
+    if (inputValue.trim()) {
+      dispatch(getWeather({ city: inputValue, lang }));
+      setInputValue('');
     }
   };
 
-  const handleDefaultCityClick = (city: string) => {
-    setInputValue(city);
-    dispatch(setCity(city));
-  };
+  const changeEn = () => dispatch({ type: 'weather/setLanguage', payload: 'en' });
+  const changeEs = () => dispatch({ type: 'weather/setLanguage', payload: 'es' });
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '500px', margin: '40px auto' }}>
-      
-      <LanguageSelector 
-        lang={lang} 
-        changeEn={() => dispatch(setLanguage('en'))} 
-        changeEs={() => dispatch(setLanguage('es'))} 
-      />
+    <>
+      <CssBaseline />
+      {/* Container centra tu app y le da un ancho máximo profesional */}
+      <Container maxWidth="sm" sx={{ mt: 5 }}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 3, bgcolor: '#f8f9fa' }}>
+          <Typography variant="h4" component="h1" align="center" gutterBottom fontWeight="bold" color="primary">
+            {t.title}
+          </Typography>
 
-      <SearchBar 
-        inputValue={inputValue} 
-        setInputValue={setInputValue} 
-        handleSearch={handleSearch} 
-        t={t} 
-      />
-
-      <DefaultCities 
-        cities={defaultCities} 
-        selectedCity={selectedCity} 
-        onCityClick={handleDefaultCityClick} 
-      />
-
-      <WeatherCard 
-        loading={loading} 
-        error={error} 
-        data={data} 
-        selectedCity={selectedCity} 
-        t={t} 
-      />
-
-    </div>
+          <LanguageSelector lang={lang} changeEn={changeEn} changeEs={changeEs} />
+          
+          <SearchBar 
+            inputValue={inputValue} 
+            setInputValue={setInputValue} 
+            handleSearch={handleSearch} 
+            t={t} 
+          />
+          
+          <Box sx={{ mt: 4 }}>
+            <WeatherCard 
+              loading={loading} 
+              error={error} 
+              data={data} 
+              selectedCity={selectedCity} 
+              t={t} 
+            />
+          </Box>
+        </Paper>
+      </Container>
+    </>
   );
 }
 

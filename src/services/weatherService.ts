@@ -2,7 +2,8 @@ import axios from 'axios';
 
 export interface WeatherInfo {
   weather: Array<{ description: string; icon: string }>;
-  main: { temp: number; temp_min: number; temp_max: number };
+  main: { temp: number; temp_min: number; temp_max: number; humidity: number };
+  wind: { speed: number };
 }
 
 //  variables de entorno

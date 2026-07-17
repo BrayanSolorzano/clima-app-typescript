@@ -1,39 +1,25 @@
 export interface DictionaryItem {
   title: string;
-  city: string;
-  language: string;
-  temp: string;
-  min: string;
-  max: string;
-  loading: string;
-  error: string;
   searchPlaceholder: string;
   searchBtn: string;
+  humidity: string; // <-- Nueva
+  wind: string;     // <-- Nueva
 }
 
-export const dict: Record<'en' | 'es', DictionaryItem> = {
-  en: {
-    title: "Weather Forecast",
-    city: "Location",
-    language: "Language",
-    temp: "Temperature",
-    min: "Min",
-    max: "Max",
-    loading: "Loading data...",
-    error: "Location not found or API error",
-    searchPlaceholder: "Enter city or country...",
-    searchBtn: "Search"
-  },
+// 2. Agregamos las traducciones a cada idioma
+export const dictionary: Record<string, DictionaryItem> = {
   es: {
-    title: "Pronóstico del Clima",
-    city: "Ubicación",
-    language: "Idioma",
-    temp: "Temperatura",
-    min: "Mín",
-    max: "Máx",
-    loading: "Cargando datos...",
-    error: "Ubicación no encontrada o error de API",
-    searchPlaceholder: "Escribe una ciudad o país...",
-    searchBtn: "Buscar"
-  }
+    title: 'Aplicación del Clima',
+    searchPlaceholder: 'Buscar ciudad...',
+    searchBtn: 'Buscar',
+    humidity: 'Humedad', // <-- Nueva
+    wind: 'Viento',      // <-- Nueva
+  },
+  en: {
+    title: 'Weather App',
+    searchPlaceholder: 'Search city...',
+    searchBtn: 'Search',
+    humidity: 'Humidity', // <-- Nueva
+    wind: 'Wind',         // <-- Nueva
+  },
 };

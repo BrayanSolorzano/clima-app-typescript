@@ -1,4 +1,6 @@
 import { FormEvent } from 'react';
+import { Box, TextField, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { DictionaryItem } from '../../utils/dictionary';
 
 interface Props {
@@ -10,23 +12,33 @@ interface Props {
 
 export const SearchBar = ({ inputValue, setInputValue, handleSearch, t }: Props) => {
   return (
-    <form onSubmit={handleSearch} style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-      <input 
-        type="text"
+    <Box 
+      component="form" 
+      onSubmit={handleSearch} 
+      sx={{ 
+        display: 'flex', 
+        gap: 2, 
+        mb: 3,
+        alignItems: 'center'
+      }}
+    >
+      <TextField 
+        fullWidth
+        variant="outlined"
+        label={t.searchPlaceholder}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        placeholder={t.searchPlaceholder}
-        style={{ padding: '10px', flex: 1, borderRadius: '4px', border: '1px solid #ccc', fontSize: '1em' }}
+        size="small"
       />
-      <button 
-        type="submit"
-        style={{ 
-          padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', 
-          border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' 
-        }}
+      <Button 
+        type="submit" 
+        variant="contained" 
+        color="primary"
+        endIcon={<SearchIcon />}
+        sx={{ height: '40px', px: 3 }}
       >
         {t.searchBtn}
-      </button>
-    </form>
+      </Button>
+    </Box>
   );
 };

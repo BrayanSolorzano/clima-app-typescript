@@ -1,3 +1,5 @@
+import { Box, Button } from '@mui/material';
+
 interface Props {
   cities: string[];
   selectedCity: string;
@@ -6,24 +8,18 @@ interface Props {
 
 export const DefaultCities = ({ cities, selectedCity, onCityClick }: Props) => {
   return (
-    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', justifyContent: 'center' }}>
+    <Box sx={{ display: 'flex', gap: 1, mb: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
       {cities.map((city) => (
-        <button
+        <Button
           key={city}
           onClick={() => onCityClick(city)}
-          style={{
-            padding: '8px 15px',
-            backgroundColor: selectedCity.toLowerCase() === city.toLowerCase() ? '#0056b3' : '#e9ecef',
-            color: selectedCity.toLowerCase() === city.toLowerCase() ? '#fff' : '#333',
-            border: '1px solid #ccc',
-            borderRadius: '20px',
-            cursor: 'pointer',
-            fontSize: '0.9em'
-          }}
+          variant={selectedCity.toLowerCase() === city.toLowerCase() ? 'contained' : 'outlined'}
+          size="small"
+          sx={{ borderRadius: 5, textTransform: 'capitalize' }}
         >
           {city}
-        </button>
+        </Button>
       ))}
-    </div>
+    </Box>
   );
 };

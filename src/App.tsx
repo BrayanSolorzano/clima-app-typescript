@@ -2,11 +2,12 @@ import { useEffect, useState, FormEvent } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Typography, Box, CssBaseline, Paper } from '@mui/material';
 import { AppDispatch, RootState } from './redux/store';
-import { getWeather } from './redux/weatherSlice';
+import { getWeather, setCity } from './redux/weatherSlice';
 import { SearchBar } from './components/SearchBar';
 import { WeatherCard } from './components/WeatherCard';
 import { LanguageSelector } from './components/LanguageSelector';
 import { dictionary } from './utils/dictionary';
+import { DefaultCities } from './components/DefaultCities';
 
 function App() {
   const [inputValue, setInputValue] = useState('');
@@ -25,7 +26,7 @@ function App() {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     if (inputValue.trim()) {
-      dispatch(getWeather({ city: inputValue, lang }));
+      dispatch(setCity(inputValue));
       setInputValue('');
     }
   };
@@ -36,10 +37,10 @@ function App() {
   return (
     <>
       <CssBaseline />
-      {/* Container centra tu app y le da un ancho máximo profesional */}
+      {/* Container centrar app */}
       <Container maxWidth="sm" sx={{ mt: 5 }}>
         <Paper elevation={3} sx={{ p: 4, borderRadius: 3, bgcolor: '#f8f9fa' }}>
-          <Typography variant="h4" component="h1" align="center" gutterBottom fontWeight="bold" color="primary">
+         <Typography variant="h4" component="h1" align="center" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>   
             {t.title}
           </Typography>
 
@@ -52,6 +53,15 @@ function App() {
             t={t} 
           />
           
+          <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+            <DefaultCities 
+              cities={['London', 'Toronto', 'Singapore']}
+              selectedCity={selectedCity}
+              // limpiar setCity  despues del clic
+              onCityClick={(city) => dispatch(setCity(city))}
+            />
+          </Box>
+
           <Box sx={{ mt: 4 }}>
             <WeatherCard 
               loading={loading} 

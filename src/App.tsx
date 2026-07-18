@@ -27,7 +27,6 @@ function App() {
     e.preventDefault();
     if (inputValue.trim()) {
       dispatch(setCity(inputValue));
-      setInputValue('');
     }
   };
 

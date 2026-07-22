@@ -1,78 +1,64 @@
-import { useEffect, useState, FormEvent } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Typography, Box, CssBaseline, Paper } from '@mui/material';
+import { Container, Typography, Box, Paper } from '@mui/material';
 import { AppDispatch, RootState } from './redux/store';
-import { getWeather, setCity } from './redux/weatherSlice';
-import { SearchBar } from './components/SearchBar';
-import { WeatherCard } from './components/WeatherCard';
-import { LanguageSelector } from './components/LanguageSelector';
+import { getWeather, setCity, setLanguage } from './redux/weatherSlice';
+import { SearchBar, WeatherCard, LanguageSelector, DefaultCities } from './components';
 import { dictionary } from './utils/dictionary';
-import { DefaultCities } from './components/DefaultCities';
+
+const DEFAULT_CITIES = ['London', 'Toronto', 'Singapore'];
 
 function App() {
-  const [inputValue, setInputValue] = useState('');
   const dispatch = useDispatch<AppDispatch>();
-  
+
   const { data, loading, error, lang, selectedCity } = useSelector(
     (state: RootState) => state.weather
   );
 
-  const t = dictionary[lang as keyof typeof dictionary];
+  const t = dictionary[lang];
 
   useEffect(() => {
     dispatch(getWeather({ city: selectedCity, lang }));
   }, [dispatch, selectedCity, lang]);
 
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    if (inputValue.trim()) {
-      dispatch(setCity(inputValue));
-    }
+  const handleSearch = (city: string) => {
+    dispatch(setCity(city));
   };
 
-  const changeEn = () => dispatch({ type: 'weather/setLanguage', payload: 'en' });
-  const changeEs = () => dispatch({ type: 'weather/setLanguage', payload: 'es' });
+  const handleChangeLanguage = (language: 'en' | 'es') => {
+    dispatch(setLanguage(language));
+  };
 
   return (
-    <>
-      <CssBaseline />
-      {/* Container centrar app */}
-      <Container maxWidth="sm" sx={{ mt: 5 }}>
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 3, bgcolor: '#f8f9fa' }}>
-         <Typography variant="h4" component="h1" align="center" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>   
-            {t.title}
-          </Typography>
+    <Container maxWidth="sm" sx={{ mt: 5, mb: 5 }}>
+      <Paper elevation={3} sx={{ p: 4, bgcolor: 'background.paper' }}>
+        <Typography
+          variant="h4"
+          component="h1"
+          align="center"
+          gutterBottom
+          color="primary"
+        >
+          {t.title}
+        </Typography>
 
-          <LanguageSelector lang={lang} changeEn={changeEn} changeEs={changeEs} />
-          
-          <SearchBar 
-            inputValue={inputValue} 
-            setInputValue={setInputValue} 
-            handleSearch={handleSearch} 
-            t={t} 
+        <LanguageSelector lang={lang} onChangeLanguage={handleChangeLanguage} />
+
+        <SearchBar onSearch={handleSearch} t={t} />
+
+        <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+          <DefaultCities
+            cities={DEFAULT_CITIES}
+            selectedCity={selectedCity}
+            onCityClick={(city) => dispatch(setCity(city))}
           />
-          
-          <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
-            <DefaultCities 
-              cities={['London', 'Toronto', 'Singapore']}
-              selectedCity={selectedCity}
-              // limpiar setCity  despues del clic
-              onCityClick={(city) => dispatch(setCity(city))}
-            />
-          </Box>
+        </Box>
 
-          <Box sx={{ mt: 4 }}>
-            <WeatherCard 
-              loading={loading} 
-              error={error} 
-              data={data} 
-              selectedCity={selectedCity} 
-              t={t} 
-            />
-          </Box>
-        </Paper>
-      </Container>
-    </>
+        <Box sx={{ mt: 4 }}>
+          <WeatherCard loading={loading} error={error} data={data} t={t} />
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 

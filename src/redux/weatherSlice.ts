@@ -1,11 +1,17 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchWeatherData, WeatherInfo } from '../services/weatherService';
+import { fetchWeatherForecast } from '../services/weatherService';
+import { WeatherForecastResponse } from '../types/weather';
+import axios from 'axios';
+
+// estado global clima ---
+
+type Language = 'en' | 'es';
 
 interface WeatherState {
-  data: WeatherInfo | null;
+  data: WeatherForecastResponse | null;
   loading: boolean;
   error: string | null;
-  lang: 'en' | 'es';
+  lang: Language;
   selectedCity: string;
 }
 
@@ -14,30 +20,43 @@ const initialState: WeatherState = {
   loading: false,
   error: null,
   lang: 'en',
-  selectedCity: 'London', 
+  selectedCity: 'London',
 };
 
-export const getWeather = createAsyncThunk(
+// obtiene la previsión meteorológica ---
+
+export const getWeather = createAsyncThunk<
+  WeatherForecastResponse,
+  { city: string; lang: string },
+  { rejectValue: string }
+>(
   'weather/getWeather',
-  async ({ city, lang }: { city: string; lang: string }, thunkAPI) => {
+  async ({ city, lang }, thunkAPI) => {
     try {
-      return await fetchWeatherData(city, lang);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message);
+      return await fetchWeatherForecast(city, lang);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message =
+          error.response?.data?.message ?? error.message ?? ' error';
+        return thunkAPI.rejectWithValue(String(message));
+      }
+      return thunkAPI.rejectWithValue('An unexpected error occurred');
     }
   }
 );
+
+// Slice
 
 const weatherSlice = createSlice({
   name: 'weather',
   initialState,
   reducers: {
-    setLanguage: (state, action: PayloadAction<'en' | 'es'>) => {
+    setLanguage: (state, action: PayloadAction<Language>) => {
       state.lang = action.payload;
     },
     setCity: (state, action: PayloadAction<string>) => {
       state.selectedCity = action.payload;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -51,9 +70,9 @@ const weatherSlice = createSlice({
       })
       .addCase(getWeather.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'Unknown error';
       });
-  }
+  },
 });
 
 export const { setLanguage, setCity } = weatherSlice.actions;

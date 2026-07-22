@@ -4,8 +4,9 @@ export interface DictionaryItem {
   searchBtn: string;
   humidity: string;
   wind: string;
-  cityNotFound: string; 
-  defaultError: string; 
+  cityNotFound: string;
+  defaultError: string;
+  hourlyForecast: string;
 }
 
 export const dictionary: Record<string, DictionaryItem> = {
@@ -15,8 +16,11 @@ export const dictionary: Record<string, DictionaryItem> = {
     searchBtn: 'Buscar',
     humidity: 'Humedad',
     wind: 'Viento',
-    cityNotFound: 'No se encontró información para esta ciudad. Verifica el nombre y vuelve a intentar.',
-    defaultError: 'Ocurrió un error al buscar el clima. Inténtalo más tarde.',
+    cityNotFound:
+      'No se encontró información para esta ciudad. Verifica el nombre y vuelve a intentar.',
+    defaultError:
+      'Ocurrió un error al buscar el clima. Inténtalo más tarde.',
+    hourlyForecast: 'Previsión por horas',
   },
   en: {
     title: 'Weather App',
@@ -24,7 +28,10 @@ export const dictionary: Record<string, DictionaryItem> = {
     searchBtn: 'Search',
     humidity: 'Humidity',
     wind: 'Wind',
-    cityNotFound: 'No information found for this city. Please check the name and try again.',
-    defaultError: 'An error occurred while fetching the weather. Please try again later.',
+    cityNotFound:
+      'No information found for this city. Please check the name and try again.',
+    defaultError:
+      'An error occurred while fetching the weather. Please try again later.',
+    hourlyForecast: 'Hourly Forecast',
   },
 };

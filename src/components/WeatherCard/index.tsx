@@ -1,17 +1,29 @@
+import { useMemo } from 'react';
 import { Card, CardContent, Typography, Box, CircularProgress, Alert } from '@mui/material';
-import { WeatherInfo } from '../../services/weatherService';
+import { WeatherForecastResponse } from '../../types/weather';
 import { DictionaryItem } from '../../utils/dictionary';
+import { getDayForecasts, getMinMaxTemp } from '../../utils/weatherUtils';
+import { WeatherStats } from './WeatherStats';
+import { HourlyForecast } from './HourlyForecast';
 
 interface Props {
   loading: boolean;
   error: string | null;
-  data: WeatherInfo | null;
-  selectedCity: string;
+  data: WeatherForecastResponse | null;
   t: DictionaryItem;
 }
 
-export const WeatherCard = ({ loading, error, data, selectedCity, t }: Props) => {
-  
+export const WeatherCard = ({ loading, error, data, t }: Props) => {
+  const todayForecasts = useMemo(() => {
+    if (!data) return [];
+    return getDayForecasts(data.list);
+  }, [data]);
+
+  const { min, max } = useMemo(() => {
+    if (todayForecasts.length === 0) return { min: 0, max: 0 };
+    return getMinMaxTemp(todayForecasts);
+  }, [todayForecasts]);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -21,51 +33,54 @@ export const WeatherCard = ({ loading, error, data, selectedCity, t }: Props) =>
   }
 
   if (error) {
-    const errorMessage = error.includes('404')
-      ? t.cityNotFound
-      : t.defaultError;
-
+    const isNotFound = error.toLowerCase().includes('not found');
     return (
       <Alert severity="error" sx={{ borderRadius: 2 }}>
-        {errorMessage}
+        {isNotFound ? t.cityNotFound : t.defaultError}
       </Alert>
     );
   }
 
-  if (!data) return null;
+  if (!data || todayForecasts.length === 0) return null;
+
+  const current = todayForecasts[0];
 
   return (
-    <Card elevation={2} sx={{ borderRadius: 2 }}>
+    <Card elevation={2}>
       <CardContent sx={{ textAlign: 'center' }}>
         <Typography variant="h5" component="h2" gutterBottom>
-          {selectedCity.toUpperCase()}
-        </Typography>
-        
-        <Box 
-          component="img"
-          src={`http://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png`}
-          alt="Weather Icon"
-          sx={{ width: 120, height: 120, margin: '0 auto' }}
-        />
-        
-        <Typography variant="h3" component="p" color="primary" sx={{ fontWeight: 'bold' }}>
-          {data.main.temp}°C
-        </Typography>
-        
-        <Typography variant="h6" color="text.secondary" sx={{ textTransform: 'capitalize', mt: 1 }}>
-          {data.weather[0].description}
+          {data.city.name}, {data.city.country}
         </Typography>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 3 }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary">{t.humidity || 'Humedad'}</Typography>
-      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{data.main.humidity}%</Typography>
-          </Box>
-          <Box>
-            <Typography variant="body2" color="text.secondary">{t.wind || 'Viento'}</Typography>
-           <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{data.wind.speed} m/s</Typography>
-          </Box>
-        </Box>
+        <Box
+          component="img"
+          src={`https://openweathermap.org/img/wn/${current.weather[0].icon}@4x.png`}
+          alt={current.weather[0].description}
+          sx={{
+            width: 120,
+            height: 120,
+            margin: '0 auto',
+            filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.15))',
+          }}
+        />
+
+        <Typography variant="h3" component="p" color="primary" sx={{ fontWeight: 'bold' }}>
+          {Math.round(current.main.temp)}°C
+        </Typography>
+
+        <Typography variant="h6" color="text.secondary" sx={{ textTransform: 'capitalize', mt: 1 }}>
+          {current.weather[0].description}
+        </Typography>
+
+        <WeatherStats
+          min={min}
+          max={max}
+          humidity={current.main.humidity}
+          windSpeed={current.wind.speed}
+          t={t}
+        />
+
+        <HourlyForecast forecasts={todayForecasts} title={t.hourlyForecast} />
       </CardContent>
     </Card>
   );
